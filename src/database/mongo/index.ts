@@ -1,5 +1,6 @@
 
 import * as mongoDB from "mongodb";
+import mongoConfig from "../../config/mongo";
 
 var order:mongoDB.Collection;
 var product:mongoDB.Collection;
@@ -13,13 +14,13 @@ class Mongo {
 
 var mongo = new Mongo()
 
-const uri = "mongodb+srv://client1:client1@cluster0.pz1ji.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${mongoConfig.username}:${mongoConfig.password}@${mongoConfig.host}/?retryWrites=true&w=majority`;
 const connect  = async () => {
     console.log('444\n')
     const client: mongoDB.MongoClient = new mongoDB.MongoClient(uri);
     await client.connect();
     
-    const db: mongoDB.Db = client.db("e_commerce_db");
+    const db: mongoDB.Db = client.db(mongoConfig.database);
     Mongo.order = db.collection("orders");
     Mongo.product = db.collection("products");
     Mongo.user = db.collection("users");
