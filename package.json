@@ -8,7 +8,7 @@
     "dev": "env-cmd -f ./.env ts-node-dev --respawn  --transpile-only src/app.ts",
     "dockerDev": "ts-node-dev --respawn  --transpile-only src/app.ts",
     "build": "tsc",
-    "start": "env-cmd -f ./.env node ./dist/app.js"
+    "start": "node ./dist/app.js"
   },
   "author": "",
   "license": "ISC",
