@@ -11,7 +11,11 @@ const validateResource=(schema: AnyZodObject)=>{
             });   
             next();
         } catch (error: any) {
-            return res.status(400).json(error.errors);
+            return res.status(400).json({error:error.errors, location:{
+                body: req.body,
+                query: req.query,
+                params: req.params
+            }});
         }
     }
 }

@@ -11,7 +11,10 @@ export const productSchema=z.object({
     }),
     seller: z.string({
         required_error: "Seller name is required."
-    })
+    }),
+    price: z.number({
+        required_error: "Price is required."
+    }),
 });
 
 export const searchProductSchema=z.object({
@@ -21,3 +24,4 @@ export const searchProductSchema=z.object({
 });
 
 export type SearchProductInput=z.TypeOf<typeof searchProductSchema>;
+export type ProductInput=z.TypeOf<typeof productSchema>;

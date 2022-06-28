@@ -1,5 +1,6 @@
 import express, { ErrorRequestHandler, NextFunction, Request, Response, Router } from "express";
 import cors from 'cors'
+import { initDatabase } from "./database/mongo/index";
 
 const initializeExpress=async()=>{
     try {
@@ -29,6 +30,7 @@ const initializeExpress=async()=>{
 
 const main=async()=>{
     try {
+        await initDatabase()
         initializeExpress();
     } catch (error) {
         console.log(error)

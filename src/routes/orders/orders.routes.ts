@@ -6,6 +6,9 @@ import { cancelOrderSchema, placeOrderSchema } from "../../schemas/order.schema"
 
 export const ordersRouter:Router = Router();
 
-ordersRouter.post('/place', [validateResource(placeOrderSchema), auth], placeOrder);
+ordersRouter.post('/place', [ auth], placeOrder);
 ordersRouter.get('/', auth, getOrders);
-ordersRouter.delete('/cancel', [validateResource(cancelOrderSchema), auth], cancelOrder);
+ordersRouter.delete('/cancel', [ auth], cancelOrder);
+// ordersRouter.post('/place', [validateResource(placeOrderSchema), auth], placeOrder);
+// ordersRouter.get('/', auth, getOrders);
+// ordersRouter.delete('/cancel', [validateResource(cancelOrderSchema), auth], cancelOrder);

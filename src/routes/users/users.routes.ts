@@ -5,6 +5,9 @@ import { createUserSchema, loginUserSchema } from "../../schemas/user.schema";
 
 export const usersRouter:Router = Router();
 
-usersRouter.post('/signUp', validateResource(createUserSchema), userSignUp)
-usersRouter.post('/login', validateResource(loginUserSchema), userLogin)
+usersRouter.post('/signUp', userSignUp)
+usersRouter.post('/login', userLogin)
 // usersRouter.get('/', getUsers);
+// usersRouter.post('/signUp', validateResource(createUserSchema), userSignUp)
+// usersRouter.post('/login', validateResource(loginUserSchema), userLogin)
+// // usersRouter.get('/', getUsers);

@@ -1,52 +1,55 @@
 import { Request, Response } from "express";
-import { PrismaClient } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
+import { ObjectId } from "mongodb";
+import { any } from "zod";
+// import { PrismaClient } from '@prisma/client';
+import mongo from "../../database/mongo";
 import { CreateUserInput, UserLoginInput } from "../../schemas/user.schema";
 import { AUTHORIZATION_TOKEN, generateToken } from "../../utils/tokenUtils";
 
-const prisma = new PrismaClient()
-export const userSignUp=async(req: Request<{}, {}, CreateUserInput['body']>, res: Response) => {
+// const prisma = new PrismaClient()
+export const userSignUp = async (req: Request<{}, {}, CreateUserInput['body']>, res: Response) => {
     try {
-        const user=await prisma.user.create({
-            data:{
-                email: req.body.email,
-                password: req.body.password,
-                name: req.body.name
-            },
-            select:{
-                id: true,
-                email: true,
-                name: true
-            },
-        });
 
-        const authToken=generateToken(user.id, user.email);
-        const respData:any={
-            message:"User Created Successfully...!",
+        const user = {
+            email: req.body.email,
+            password: req.body.password,
+            name: req.body.name,
+            id: uuidv4()
+        }
+        const dbReq = await mongo.user.insertOne(user)
+        console.log(dbReq)
+        if(!dbReq.acknowledged) throw "DB error: Failed to create user"
+
+        const authToken = generateToken(user.id, user.email);
+        const respData: any = {
+            message: "User Created Successfully...!",
             data: user
         };
-        respData[AUTHORIZATION_TOKEN]=authToken;
+        respData[AUTHORIZATION_TOKEN] = authToken;
         res.status(201).json({
-            status:"sucess",
+            status: "sucess",
             ...respData
         });
-    } catch (error) {
+    } catch (error: any) {
         console.log(error)
+        if(error.code === 11000){error={};error.message = "email ID already exists"; error.code = 400; error.status="failed"}
         res.status(500).json({
             status: "failed",
-            error: error
+            error: (error)
         });
     }
 }
 
-export const userLogin=async(req: Request<{}, {}, UserLoginInput['body']>, res: Response)=>{
+export const userLogin = async (req: Request<{}, {}, UserLoginInput['body']>, res: Response) => {
     try {
-        const user=await prisma.user.findFirst({
-            where:{
+        const user = await mongo.user.findOne({
                 email: req.body.email
-            }
         });
 
-        if(user==null){
+        console.log(user)
+
+        if (user == null) {
             res.status(404).json({
                 status: "Failed",
                 error: 'User not found.'
@@ -54,7 +57,7 @@ export const userLogin=async(req: Request<{}, {}, UserLoginInput['body']>, res: 
             return;
         }
 
-        if(user.password!=req.body.password){
+        if (user.password != req.body.password) {
             res.status(405).json({
                 status: "Failed",
                 error: 'Invalid email or password.'
@@ -62,17 +65,17 @@ export const userLogin=async(req: Request<{}, {}, UserLoginInput['body']>, res: 
             return;
         }
 
-        const authToken=generateToken(user.id, user.email);
-        const respData:any={
-            user:{
+        const authToken = generateToken(user.id, user.email);
+        const respData: any = {
+            user: {
                 id: user.id,
-                email:user.email,
+                email: user.email,
                 name: user.name
             },
         };
-        respData[AUTHORIZATION_TOKEN]=authToken;
+        respData[AUTHORIZATION_TOKEN] = authToken;
         res.status(200).json({
-            status:"Success",
+            status: "Success",
             ...respData,
         })
     } catch (error) {
@@ -84,25 +87,25 @@ export const userLogin=async(req: Request<{}, {}, UserLoginInput['body']>, res: 
     }
 }
 
-export const getUsers=async(req: Request, res: Response)=>{
+export const getUsers = async (req: Request, res: Response) => {
     try {
-        const users=await prisma.user.findMany({
-            select:{
+        const users = await mongo.user.find({
+            // select: {
                 id: true,
                 email: true,
                 name: true
-            }
-        });
+            // }
+        }).toArray();
         res.status(200).json({
-            status:"success",
+            status: "success",
             data: users,
-            message:"User Successfully Fetched.. !"
+            message: "User Successfully Fetched.. !"
         });
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            status:"Failed",
-            error:error
+            status: "Failed",
+            error: error
         })
     }
 }
